@@ -35,9 +35,17 @@ def parse_example(example_proto):
     return video_id, combined_features, labels
 
 
+def pad_labels(video_id, features, labels):
+    """Pad labels to a fixed size."""
+    max_labels = 100  # Choose a reasonable maximum number of labels
+    labels = tf.pad(labels, [[0, max_labels - tf.shape(labels)[0]]])
+    labels = tf.slice(labels, [0], [max_labels])
+    return video_id, features, labels
+
+
 def preprocess_dataset(dataset):
-    """Preprocess the dataset by parsing examples and batching."""
-    return dataset.map(parse_example).batch(32)
+    """Preprocess the dataset by parsing examples, padding labels, and batching."""
+    return dataset.map(parse_example).map(pad_labels).batch(32)
 
 
 # Load and preprocess datasets

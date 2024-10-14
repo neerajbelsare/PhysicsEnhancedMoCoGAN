@@ -5,5 +5,5 @@
     <option name="pathToExecutable" value="D:\anaconda3\Scripts\black.exe" />
     <option name="sdkName" value="Python 3.11" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="$USER_HOME$/anaconda3" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="dev_mocogan_env" project-jdk-type="Python SDK" />
 </project>
