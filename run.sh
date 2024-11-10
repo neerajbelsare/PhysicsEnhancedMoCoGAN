@@ -43,27 +43,10 @@ run_command() {
 case $STAGE in
   "preprocess")
     echo "Preprocessing data..."
-    run_command "python src/preprocess_data.py \
-      --train_dir data/yt8m/frame/train \
-      --test_dir data/yt8m/frame/test \
-      --validate_dir data/yt8m/frame/validate \
-      --output_dir data/yt8m/preprocessed \
-      --log logs/preprocess_log.txt"
-    ;;
+    run_command "python src/preprocess_data.py";;
   "train")
     echo "Training the MoCoGAN model..."
-    run_command "python src/train.py \
-      --data_dir data/yt8m/preprocessed \
-      --checkpoint_dir checkpoints \
-      --model_save_dir saved_models \
-      --log logs/training_log.txt \
-      --latent_dim 100 \
-      --num_frames 16 \
-      --image_size 64 \
-      --channels 3 \
-      --batch_size 32 \
-      --epochs 100"
-    ;;
+    run_command "python src/train.py";;
   "evaluate")
     echo "Evaluating the MoCoGAN model..."
     run_command "python scripts/evaluate_mocogan.py \

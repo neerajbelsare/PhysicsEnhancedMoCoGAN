@@ -1,0 +1,1 @@
+Training started with latent_dim=100, num_frames=16, image_size=64, channels=3, batch_size=1, epochs=100

@@ -15,13 +15,13 @@ if gpus:
         print(e)
 
 # Paths to the video-level data directories
-data_dir = '../data/yt8m/video'
+data_dir = 'data/yt8m/video'
 train_dir = os.path.join(data_dir, 'train')
 validate_dir = os.path.join(data_dir, 'validate')
 test_dir = os.path.join(data_dir, 'test')
 
 # Output directories for preprocessed data
-output_dir = '../data/yt8m/preprocessed'
+output_dir = 'data/yt8m/preprocessed'
 os.makedirs(output_dir, exist_ok=True)
 
 

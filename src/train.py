@@ -1,47 +1,63 @@
-import os
 import sys
+import os
+
+from config import Config
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import tensorflow as tf
+import numpy as np
+import glob
+from tqdm import tqdm
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from models.mocogan import MoCoGAN
 
-from models.models import Generator, ImageDiscriminator, VideoDiscriminator
-from scripts.data import YouTube8MDataset
-from scripts.trainers import MoCoGANTrainer
+def load_data_chunk(chunk_path):
+    """Load a single data chunk."""
+    data = np.load(chunk_path)
+    return data['features'], data['labels']
 
-# Hyperparameters
-latent_dim = 100
-num_frames = 16
-image_size = 64
-channels = 3
-batch_size = 32
-epochs = 100
+def train(config):
+    """Main training function."""
+    # Initialize model
+    model = MoCoGAN(config)
+    model.setup_checkpointing()
 
-# Data directory
-data_dir = 'data/yt8m/preprocessed'
+    # Training loop
+    step = 0
+    for epoch in range(config.EPOCHS):
+        print(f"Epoch {epoch + 1}/{config.EPOCHS}")
 
-# Checkpoint and model save directories
-checkpoint_dir = './checkpoints'
-model_save_dir = './saved_models'
+        # Get all chunk files
+        chunk_files = glob.glob(os.path.join(config.DATA_DIR, 'train_*.npz'))
 
-# Create dataset
-dataset = YouTube8MDataset(data_dir, batch_size, num_frames=16, image_size=64, channels=3)
-train_dataset = dataset.get_train_dataset()
+        for chunk_file in tqdm(chunk_files, desc="Processing chunks"):
+            # Load and preprocess chunk
+            features, _ = load_data_chunk(chunk_file)
 
-# Calculate steps per epoch
-steps_per_epoch = tf.data.experimental.cardinality(train_dataset).numpy()
+            # Create dataset from chunk
+            dataset = tf.data.Dataset.from_tensor_slices(features)
+            dataset = dataset.shuffle(10000).batch(config.BATCH_SIZE)
 
-# Create models
-generator = Generator(latent_dim, num_frames, image_size, channels)
-image_discriminator = ImageDiscriminator(image_size, channels)
-video_discriminator = VideoDiscriminator(num_frames, image_size, channels)
+            for batch in dataset:
+                # Reshape batch into sequences
+                batch_sequences = tf.reshape(batch,
+                                             [-1, config.SEQUENCE_LENGTH, batch.shape[-1]])
 
-# Create trainer with checkpoint directory
-trainer = MoCoGANTrainer(generator, image_discriminator, video_discriminator, latent_dim, checkpoint_dir)
+                # Training step
+                gen_loss, disc_loss = model.train_step(batch_sequences)
 
-# Train the model
-trainer.train(train_dataset, epochs, steps_per_epoch)
+                if step % 100 == 0:
+                    print(f"Step {step}: Gen Loss: {gen_loss:.4f}, "
+                          f"Disc Loss: {disc_loss:.4f}")
 
-# Save the final models
-trainer.save_models(model_save_dir)
+                # Save checkpoint
+                if step % config.CHECKPOINT_INTERVAL == 0:
+                    save_path = model.manager.save()
+                    print(f"Saved checkpoint: {save_path}")
 
-print("Training completed and models saved.")
+                step += 1
+
+if __name__ == "__main__":
+    config = Config()
+    train(config)
