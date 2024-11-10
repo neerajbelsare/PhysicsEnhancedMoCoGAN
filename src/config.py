@@ -9,7 +9,7 @@ class Config:
 
     # Training parameters
     BATCH_SIZE = 32
-    EPOCHS = 100
+    EPOCHS = 10
     CHECKPOINT_INTERVAL = 1000
     LEARNING_RATE = 2e-4
     BETA1 = 0.5

@@ -49,15 +49,10 @@ class Generator(tf.keras.Model):
         # Concatenate along feature dimension
         combined = tf.concat([content_tiled, motion], axis=-1)  # [batch, seq_length, content_dim + motion_dim]
 
-        # Process each timestep
-        outputs = []
-        for t in range(seq_length):
-            timestep_features = combined[:, t, :]  # [batch, content_dim + motion_dim]
-            output = self.decoder(timestep_features)  # [batch, 1152]
-            outputs.append(output)
+        # Use tf.map_fn to process each timestep with the decoder
+        outputs = tf.map_fn(lambda timestep_features: self.decoder(timestep_features), combined)
 
-        # Stack timesteps
-        return tf.stack(outputs, axis=1)  # [batch, seq_length, 1152]
+        return outputs  # [batch, seq_length, 1152]
 
 class Discriminator(tf.keras.Model):
     def __init__(self):
@@ -76,13 +71,8 @@ class Discriminator(tf.keras.Model):
         ])
 
     def call(self, x):
-        # Process each frame
-        frame_scores = []
-        for t in range(tf.shape(x)[1]):
-            frame = x[:, t, :]
-            frame_score = self.frame_disc(frame)
-            frame_scores.append(frame_score)
-        frame_scores = tf.stack(frame_scores, axis=1)
+        # Process each frame with tf.map_fn
+        frame_scores = tf.map_fn(lambda frame: self.frame_disc(frame), x)
 
         # Process whole sequence
         video_score = self.video_disc(x)
