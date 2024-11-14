@@ -52,19 +52,14 @@ case $STAGE in
     run_command "python src/evaluate.py";;
   "generate")
     echo "Generating videos using the trained model..."
-    run_command "python src/generate.py"
-    ;;
-  "physics_sim")
+    run_command "python src/generate.py";;
+  "generate_physics")
     echo "Running physics simulation..."
-    run_command "python physics_engine/pybullet_simulation.py \
-      --urdf_file physics_engine/pendulum.urdf \
-      --log logs/physics_simulation_log.txt"
-    ;;
+    run_command "python src/generate_with_physics.py";;
   *)
     echo "Error: Invalid stage specified."
     print_usage
-    exit 1
-    ;;
+    exit 1;;
 esac
 
 echo "Execution of stage '$STAGE' completed successfully."

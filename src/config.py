@@ -17,14 +17,24 @@ class Config:
     # Data parameters
     DATA_DIR = 'data/yt8m/preprocessed'
 
+    # Physics constraints
+    APPLY_PHYSICS = True  # Set to True to apply physics constraints in final generation
+    GRAVITY = -9.8  # Gravity for PyBullet physics engine (can be adjusted)
+
     # Paths
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     CHECKPOINT_DIR = os.path.join(
         BASE_DIR,
         'checkpoints',
-        '20241111-153237'
-        # datetime.now().strftime("%Y%m%d-%H%M%S")
+        '20241111-153237'  # Ensure this directory exists or update with the correct checkpoint date
     )
+
+    OUTPUT_DIR = os.path.join(BASE_DIR, 'output')
+    OUTPUT_VIDEO_PATH = os.path.join(OUTPUT_DIR, 'final_generated_video.mp4')
+
+    # Video generation parameters
+    FRAME_RATE = 30  # Frame rate of the generated video
 
     # Create required directories
     os.makedirs(CHECKPOINT_DIR, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)

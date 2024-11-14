@@ -4,7 +4,6 @@ import glob
 import os
 
 from models.components import ContentEncoder, MotionEncoder, Generator, Discriminator
-# from models.physics import PhysicsConstraints
 
 class MoCoGAN:
     def __init__(self, config):
@@ -15,7 +14,6 @@ class MoCoGAN:
         self.motion_encoder = MotionEncoder(config.MOTION_DIM)
         self.generator = Generator(config.CONTENT_DIM, config.MOTION_DIM)
         self.discriminator = Discriminator()
-        # self.physics = PhysicsConstraints()
 
         # Add gradient clipping to optimizers
         self.gen_optimizer = tf.keras.optimizers.Adam(
@@ -246,3 +244,45 @@ class MoCoGAN:
             )
         )
         return real_frame_loss + real_video_loss + fake_frame_loss + fake_video_loss
+
+    def predict_sequence(self, input_sequence, num_future_frames=8):
+        """
+        Predict future frames given an input sequence.
+        Args:
+            input_sequence: Tensor of shape [batch_size, sequence_length, feature_dim]
+            num_future_frames: Number of frames to predict
+        Returns:
+            Predicted sequence tensor
+        """
+        # Extract content and motion features
+        content_features = self.content_encoder(input_sequence)
+        motion_features = self.motion_encoder(input_sequence)
+
+        # Generate future motion
+        future_motion = []
+        current_motion = motion_features[:, -1, :]
+
+        for _ in range(num_future_frames):
+            # Use GRU to predict next motion state
+            current_motion = self.motion_encoder.gru(
+                tf.expand_dims(current_motion, 1)
+            )[:, -1, :]
+            future_motion.append(current_motion)
+
+        future_motion = tf.stack(future_motion, axis=1)
+
+        # Generate future frames using content and motion features
+        predicted_frames = self.generator(
+            content_features,
+            tf.concat([motion_features, future_motion], axis=1)
+        )
+
+        return predicted_frames
+
+    def encode_sequence(self, input_sequence):
+        """
+        Encode an input sequence into content and motion features.
+        """
+        content_features = self.content_encoder(input_sequence)
+        motion_features = self.motion_encoder(input_sequence)
+        return content_features, motion_features
