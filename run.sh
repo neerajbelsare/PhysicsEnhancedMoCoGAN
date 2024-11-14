@@ -49,19 +49,10 @@ case $STAGE in
     run_command "python src/train.py";;
   "evaluate")
     echo "Evaluating the MoCoGAN model..."
-    run_command "python scripts/evaluate_mocogan.py \
-      --checkpoint checkpoints/epoch_10.pth \
-      --data_dir data/processed \
-      --results_dir results \
-      --log logs/evaluation_log.txt"
-    ;;
+    run_command "python src/evaluate.py";;
   "generate")
     echo "Generating videos using the trained model..."
-    run_command "python scripts/generate_video.py \
-      --checkpoint checkpoints/epoch_10.pth \
-      --results_dir results/videos \
-      --num_videos 5 \
-      --log logs/generation_log.txt"
+    run_command "python src/generate.py"
     ;;
   "physics_sim")
     echo "Running physics simulation..."

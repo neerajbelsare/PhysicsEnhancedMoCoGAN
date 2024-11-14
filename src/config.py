@@ -22,7 +22,8 @@ class Config:
     CHECKPOINT_DIR = os.path.join(
         BASE_DIR,
         'checkpoints',
-        datetime.now().strftime("%Y%m%d-%H%M%S")
+        '20241111-153237'
+        # datetime.now().strftime("%Y%m%d-%H%M%S")
     )
 
     # Create required directories

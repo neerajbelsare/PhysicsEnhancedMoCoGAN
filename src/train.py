@@ -21,10 +21,11 @@ def train(config):
     """Main training function."""
     # Initialize model
     model = MoCoGAN(config)
-    model.setup_checkpointing()
+    model.setup_checkpointing()  # This restores from the latest checkpoint, if available
 
     # Training loop
-    step = 0
+    step = model.checkpoint.save_counter.numpy()  # Retrieve last saved step count if available
+
     for epoch in range(config.EPOCHS):
         print(f"Epoch {epoch + 1}/{config.EPOCHS}")
 

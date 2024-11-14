@@ -4,7 +4,7 @@ import glob
 import os
 
 from models.components import ContentEncoder, MotionEncoder, Generator, Discriminator
-from models.physics import PhysicsConstraints
+# from models.physics import PhysicsConstraints
 
 class MoCoGAN:
     def __init__(self, config):
@@ -15,7 +15,7 @@ class MoCoGAN:
         self.motion_encoder = MotionEncoder(config.MOTION_DIM)
         self.generator = Generator(config.CONTENT_DIM, config.MOTION_DIM)
         self.discriminator = Discriminator()
-        self.physics = PhysicsConstraints()
+        # self.physics = PhysicsConstraints()
 
         # Add gradient clipping to optimizers
         self.gen_optimizer = tf.keras.optimizers.Adam(
@@ -77,7 +77,7 @@ class MoCoGAN:
             fake_content = self.content_encoder(content_noise)
             fake_motion = self.motion_encoder(motion_noise)
             fake_sequences = self.generator(fake_content, fake_motion)
-            fake_sequences = self.physics.apply_constraints(fake_sequences)
+            # fake_sequences = self.physics.apply_constraints(fake_sequences)
 
             # Discriminator forward pass
             real_frame_scores, real_video_score = self.discriminator(dummy_sequence)
@@ -138,7 +138,7 @@ class MoCoGAN:
             fake_content = self.content_encoder(content_noise)
             fake_motion = self.motion_encoder(motion_noise)
             fake_sequences = self.generator(fake_content, fake_motion)
-            fake_sequences = self.physics.apply_constraints(fake_sequences)
+            # fake_sequences = self.physics.apply_constraints(fake_sequences)
 
             # Get discriminator outputs
             real_frame_scores, real_video_score = self.discriminator(real_sequences_noisy)
@@ -156,7 +156,7 @@ class MoCoGAN:
             fake_content = self.content_encoder(content_noise)
             fake_motion = self.motion_encoder(motion_noise)
             fake_sequences = self.generator(fake_content, fake_motion)
-            fake_sequences = self.physics.apply_constraints(fake_sequences)
+            # fake_sequences = self.physics.apply_constraints(fake_sequences)
 
             # Get discriminator outputs for fake samples
             fake_frame_scores, fake_video_score = self.discriminator(fake_sequences)
